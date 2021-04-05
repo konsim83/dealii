@@ -454,8 +454,7 @@ namespace FEConforimityTest
 
             switch (fe_ptr->conforming_space)
               {
-                case FiniteElementData<dim>::Conformity::H1:
-                  {
+                  case FiniteElementData<dim>::Conformity::H1: {
                     get_function_jump(fe_interface_values,
                                       random_fe_funtion,
                                       interface_jumps);
@@ -467,8 +466,7 @@ namespace FEConforimityTest
                     break;
                   } // H1
 
-                case FiniteElementData<dim>::Conformity::Hdiv:
-                  {
+                  case FiniteElementData<dim>::Conformity::Hdiv: {
                     get_normal_jump(fe_interface_values,
                                     random_fe_funtion,
                                     interface_jumps);
@@ -480,8 +478,7 @@ namespace FEConforimityTest
                     break;
                   } // case H(div)
 
-                case FiniteElementData<dim>::Conformity::Hcurl:
-                  {
+                  case FiniteElementData<dim>::Conformity::Hcurl: {
                     get_tangential_jump(fe_interface_values,
                                         random_fe_funtion,
                                         interface_jumps);
