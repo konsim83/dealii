@@ -5074,10 +5074,9 @@ namespace GridGenerator
   void non_standard_orientation_mesh(Triangulation<2> & tria,
                                      const unsigned int n_rotate_right_square)
   {
-    AssertThrow(
-      n_rotate_right_square < 4,
-      ExcMessage(
-        "The number of rotation by pi/2 of the right square msut be between in the half-open range [0,4)."))
+    AssertThrow(n_rotate_right_square < 4,
+                ExcMessage("The number of rotation by pi/2 of the right square "
+                           " must be in the half-open range [0,4)."))
 
       constexpr unsigned int dim = 2;
 
