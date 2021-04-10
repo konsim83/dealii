@@ -5080,7 +5080,7 @@ namespace GridGenerator
 
       constexpr unsigned int dim = 2;
 
-    const unsigned int         n_cells = 2;
+    const unsigned int         n_cells = 5;
     std::vector<CellData<dim>> cells(n_cells);
 
     // Corner points of the cube [0,1]^2
@@ -5089,12 +5089,21 @@ namespace GridGenerator
                                               Point<dim>(0, 1),  // 2
                                               Point<dim>(1, 1),  // 3
                                               Point<dim>(2, 0),  // 4
-                                              Point<dim>(2, 1)}; // 5
+                                              Point<dim>(2, 1),  // 5
+                                              Point<dim>(3, 0),  // 6
+                                              Point<dim>(3, 1),  // 7
+                                              Point<dim>(1, -1), // 8
+                                              Point<dim>(2, -1), // 9
+                                              Point<dim>(1, 2),  // 10
+                                              Point<dim>(2, 2)}; // 11
 
 
     // consistent orientation
-    unsigned int cell_vertices[n_cells][4] = {{0, 1, 2, 3},  // unit cube
-                                              {1, 4, 3, 5}}; // shifted cube
+    unsigned int cell_vertices[n_cells][4] = {{0, 1, 2, 3},
+                                              {1, 4, 3, 5}, // rotating cube
+                                              {8, 9, 1, 4},
+                                              {4, 6, 5, 7},
+                                              {3, 5, 10, 11}};
 
     switch (n_rotate_right_square)
       {

@@ -781,13 +781,13 @@ namespace GridGenerator
                       const double        radius = 1.);
 
   /**
-   * Generate a 2D mesh consisting of the unit square joined with a copy shifted
-   * by $s = (1,0)$. Depending on the number <code>n_rotate_right_square</code>
-   * passed the right square is rotated by a degree of
+   * Generate a 2D mesh consisting of five squares aranged in a plus-shape.
+   * Depending on the number <code>n_rotate_right_square</code> passed the
+   * middle square is rotated by a degree of
    * <code>n_rotate_right_square</code>$\pi/2$. This way one can generate a mesh
-   * in which the right square contains an edge that has the opposite tangential
-   * and/or opposite normal orientation compared to the neighboring edge of the
-   * left square.
+   * in which the middle square contains edges that have the opposite tangential
+   * and/or opposite normal orientation compared to the neighboring edges of the
+   * other squares.
    *
    * This mesh is not overly useful from a practical point of view. For
    * debugging purposes it can be used to check for orientation issues for
