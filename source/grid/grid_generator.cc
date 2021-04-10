@@ -5072,9 +5072,9 @@ namespace GridGenerator
 
 
   void non_standard_orientation_mesh(Triangulation<2> & tria,
-                                     const unsigned int n_rotate_right_square)
+                                     const unsigned int n_rotate_middle_square)
   {
-    AssertThrow(n_rotate_right_square < 4,
+    AssertThrow(n_rotate_middle_square < 4,
                 ExcMessage("The number of rotation by pi/2 of the right square "
                            "must be in the half-open range [0,4)."))
 
@@ -5105,11 +5105,10 @@ namespace GridGenerator
                                               {4, 6, 5, 7},
                                               {3, 5, 10, 11}};
 
-    switch (n_rotate_right_square)
+    switch (n_rotate_middle_square)
       {
         case /* rotate right square */ 1:
           {
-            // normal mismatch
             cell_vertices[1][0] = 4;
             cell_vertices[1][1] = 5;
             cell_vertices[1][2] = 1;
@@ -5119,7 +5118,6 @@ namespace GridGenerator
 
         case /* rotate right square */ 2:
           {
-            // tangent mismatch and normal mismatch
             cell_vertices[1][0] = 5;
             cell_vertices[1][1] = 3;
             cell_vertices[1][2] = 4;
@@ -5129,7 +5127,6 @@ namespace GridGenerator
 
         case /* rotate right square */ 3:
           {
-            // tangent mismatch
             cell_vertices[1][0] = 3;
             cell_vertices[1][1] = 1;
             cell_vertices[1][2] = 5;
