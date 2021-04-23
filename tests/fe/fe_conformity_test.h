@@ -210,7 +210,7 @@ namespace FEConforimityTest
     const bool rotate_right_square = ((config_switch % 2) == 1);
 
     // alias for better readabilty
-    const unsigned int n_rotate_right_square = config_switch;
+    const unsigned int n_rotate_central_square = config_switch;
 
     GridGenerator::non_standard_orientation_mesh(triangulation,
                                                  n_rotate_right_square);
