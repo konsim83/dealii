@@ -206,14 +206,11 @@ namespace FEConforimityTest
   {
     triangulation.clear();
 
-    const bool rotate_left_square  = (((config_switch / 2) % 2) == 1);
-    const bool rotate_right_square = ((config_switch % 2) == 1);
-
     // alias for better readabilty
     const unsigned int n_rotate_central_square = config_switch;
 
     GridGenerator::non_standard_orientation_mesh(triangulation,
-                                                 n_rotate_right_square);
+                                                 n_rotate_central_square);
 
     //    GridTools::distort_random(/* factor */ 0.15,
     //                              triangulation_coarse,
@@ -454,8 +451,7 @@ namespace FEConforimityTest
 
             switch (fe_ptr->conforming_space)
               {
-                case FiniteElementData<dim>::Conformity::H1:
-                  {
+                  case FiniteElementData<dim>::Conformity::H1: {
                     get_function_jump(fe_interface_values,
                                       random_fe_funtion,
                                       interface_jumps);
@@ -467,8 +463,7 @@ namespace FEConforimityTest
                     break;
                   } // H1
 
-                case FiniteElementData<dim>::Conformity::Hdiv:
-                  {
+                  case FiniteElementData<dim>::Conformity::Hdiv: {
                     get_normal_jump(fe_interface_values,
                                     random_fe_funtion,
                                     interface_jumps);
@@ -480,8 +475,7 @@ namespace FEConforimityTest
                     break;
                   } // case H(div)
 
-                case FiniteElementData<dim>::Conformity::Hcurl:
-                  {
+                  case FiniteElementData<dim>::Conformity::Hcurl: {
                     get_tangential_jump(fe_interface_values,
                                         random_fe_funtion,
                                         interface_jumps);
