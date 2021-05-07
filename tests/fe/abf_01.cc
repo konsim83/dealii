@@ -55,8 +55,7 @@
  * Check the value of the derivative field.
  */
 
-void
-EvaluateDerivative(DoFHandler<2> *dof_handler, Vector<double> &solution)
+void EvaluateDerivative(DoFHandler<2> *dof_handler, Vector<double> &solution)
 {
   // This quadrature rule determines the points, where the
   // derivative will be evaluated.
@@ -540,8 +539,7 @@ project(const Mapping<dim> &             mapping,
 }
 
 
-int
-create_alternate_unitsquare(Triangulation<2> &tria)
+int create_alternate_unitsquare(Triangulation<2> &tria)
 {
   std::vector<Point<2>> points;
 
