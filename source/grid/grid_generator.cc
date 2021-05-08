@@ -1719,8 +1719,8 @@ namespace GridGenerator
 
   template <int dim, int spacedim>
   void
-  reference_cell(Triangulation<dim, spacedim> &tria,
-                 const ReferenceCell &         reference_cell)
+  reference_cell(const ReferenceCell &         reference_cell,
+                 Triangulation<dim, spacedim> &tria)
   {
     AssertDimension(dim, reference_cell.get_dimension());
 
@@ -1829,39 +1829,28 @@ namespace GridGenerator
 
     unsigned int offset = 0;
 
-    // This Triangulation is constructed using the UCD numbering scheme since,
-    // in that numbering, the front face is first and the back face is second,
-    // which is more convenient for creating a moebius
     std::vector<CellData<dim>> cells(n_cells);
     for (unsigned int i = 0; i < n_cells; ++i)
       {
         for (unsigned int j = 0; j < 2; ++j)
           {
-            cells[i].vertices[GeometryInfo<3>::ucd_to_deal[0 + 4 * j]] =
-              offset + 0 + 4 * j;
-            cells[i].vertices[GeometryInfo<3>::ucd_to_deal[1 + 4 * j]] =
-              offset + 3 + 4 * j;
-            cells[i].vertices[GeometryInfo<3>::ucd_to_deal[2 + 4 * j]] =
-              offset + 2 + 4 * j;
-            cells[i].vertices[GeometryInfo<3>::ucd_to_deal[3 + 4 * j]] =
-              offset + 1 + 4 * j;
+            cells[i].vertices[0 + 4 * j] = offset + 0 + 4 * j;
+            cells[i].vertices[1 + 4 * j] = offset + 3 + 4 * j;
+            cells[i].vertices[2 + 4 * j] = offset + 2 + 4 * j;
+            cells[i].vertices[3 + 4 * j] = offset + 1 + 4 * j;
           }
         offset += 4;
         cells[i].material_id = 0;
       }
 
     // now correct the last four vertices
-    cells[n_cells - 1].vertices[GeometryInfo<3>::ucd_to_deal[4]] =
-      (0 + n_rotations) % 4;
-    cells[n_cells - 1].vertices[GeometryInfo<3>::ucd_to_deal[5]] =
-      (3 + n_rotations) % 4;
-    cells[n_cells - 1].vertices[GeometryInfo<3>::ucd_to_deal[6]] =
-      (2 + n_rotations) % 4;
-    cells[n_cells - 1].vertices[GeometryInfo<3>::ucd_to_deal[7]] =
-      (1 + n_rotations) % 4;
+    cells[n_cells - 1].vertices[4] = (0 + n_rotations) % 4;
+    cells[n_cells - 1].vertices[5] = (3 + n_rotations) % 4;
+    cells[n_cells - 1].vertices[6] = (2 + n_rotations) % 4;
+    cells[n_cells - 1].vertices[7] = (1 + n_rotations) % 4;
 
-    GridTools::invert_all_negative_measure_cells(vertices, cells);
-    tria.create_triangulation(vertices, cells, SubCellData());
+    GridReordering<dim>::invert_all_cells_of_negative_grid(vertices, cells);
+    tria.create_triangulation_compatibility(vertices, cells, SubCellData());
   }
 
 
@@ -1903,102 +1892,105 @@ namespace GridGenerator
     // Right Hand Orientation
     cells[0].vertices[0] = 0;
     cells[0].vertices[1] = 4;
-    cells[0].vertices[2] = 3;
-    cells[0].vertices[3] = 7;
+    cells[0].vertices[2] = 7;
+    cells[0].vertices[3] = 3;
     cells[0].material_id = 0;
 
     cells[1].vertices[0] = 1;
     cells[1].vertices[1] = 5;
-    cells[1].vertices[2] = 0;
-    cells[1].vertices[3] = 4;
+    cells[1].vertices[2] = 4;
+    cells[1].vertices[3] = 0;
     cells[1].material_id = 0;
 
     cells[2].vertices[0] = 2;
     cells[2].vertices[1] = 6;
-    cells[2].vertices[2] = 1;
-    cells[2].vertices[3] = 5;
+    cells[2].vertices[2] = 5;
+    cells[2].vertices[3] = 1;
     cells[2].material_id = 0;
 
     cells[3].vertices[0] = 3;
     cells[3].vertices[1] = 7;
-    cells[3].vertices[2] = 2;
-    cells[3].vertices[3] = 6;
+    cells[3].vertices[2] = 6;
+    cells[3].vertices[3] = 2;
     cells[3].material_id = 0;
 
     cells[4].vertices[0] = 4;
     cells[4].vertices[1] = 8;
-    cells[4].vertices[2] = 7;
-    cells[4].vertices[3] = 11;
+    cells[4].vertices[2] = 11;
+    cells[4].vertices[3] = 7;
     cells[4].material_id = 0;
 
     cells[5].vertices[0] = 5;
     cells[5].vertices[1] = 9;
-    cells[5].vertices[2] = 4;
-    cells[5].vertices[3] = 8;
+    cells[5].vertices[2] = 8;
+    cells[5].vertices[3] = 4;
     cells[5].material_id = 0;
 
     cells[6].vertices[0] = 6;
     cells[6].vertices[1] = 10;
-    cells[6].vertices[2] = 5;
-    cells[6].vertices[3] = 9;
+    cells[6].vertices[2] = 9;
+    cells[6].vertices[3] = 5;
     cells[6].material_id = 0;
 
     cells[7].vertices[0] = 7;
     cells[7].vertices[1] = 11;
-    cells[7].vertices[2] = 6;
-    cells[7].vertices[3] = 10;
+    cells[7].vertices[2] = 10;
+    cells[7].vertices[3] = 6;
     cells[7].material_id = 0;
 
     cells[8].vertices[0] = 8;
     cells[8].vertices[1] = 12;
-    cells[8].vertices[2] = 11;
-    cells[8].vertices[3] = 15;
+    cells[8].vertices[2] = 15;
+    cells[8].vertices[3] = 11;
     cells[8].material_id = 0;
 
     cells[9].vertices[0] = 9;
     cells[9].vertices[1] = 13;
-    cells[9].vertices[2] = 8;
-    cells[9].vertices[3] = 12;
+    cells[9].vertices[2] = 12;
+    cells[9].vertices[3] = 8;
     cells[9].material_id = 0;
 
     cells[10].vertices[0] = 10;
     cells[10].vertices[1] = 14;
-    cells[10].vertices[2] = 9;
-    cells[10].vertices[3] = 13;
+    cells[10].vertices[2] = 13;
+    cells[10].vertices[3] = 9;
     cells[10].material_id = 0;
 
     cells[11].vertices[0] = 11;
     cells[11].vertices[1] = 15;
-    cells[11].vertices[2] = 10;
-    cells[11].vertices[3] = 14;
+    cells[11].vertices[2] = 14;
+    cells[11].vertices[3] = 10;
     cells[11].material_id = 0;
 
     cells[12].vertices[0] = 12;
     cells[12].vertices[1] = 0;
-    cells[12].vertices[2] = 15;
-    cells[12].vertices[3] = 3;
+    cells[12].vertices[2] = 3;
+    cells[12].vertices[3] = 15;
     cells[12].material_id = 0;
 
     cells[13].vertices[0] = 13;
     cells[13].vertices[1] = 1;
-    cells[13].vertices[2] = 12;
-    cells[13].vertices[3] = 0;
+    cells[13].vertices[2] = 0;
+    cells[13].vertices[3] = 12;
     cells[13].material_id = 0;
 
     cells[14].vertices[0] = 14;
     cells[14].vertices[1] = 2;
-    cells[14].vertices[2] = 13;
-    cells[14].vertices[3] = 1;
+    cells[14].vertices[2] = 1;
+    cells[14].vertices[3] = 13;
     cells[14].material_id = 0;
 
     cells[15].vertices[0] = 15;
     cells[15].vertices[1] = 3;
-    cells[15].vertices[2] = 14;
-    cells[15].vertices[3] = 2;
+    cells[15].vertices[2] = 2;
+    cells[15].vertices[3] = 14;
     cells[15].material_id = 0;
 
-    GridTools::consistently_order_cells(cells);
-    tria.create_triangulation(vertices, cells, SubCellData());
+    // Must call this to be able to create a
+    // correct triangulation in dealii, read
+    // GridReordering<> doc
+    GridReordering<dim, spacedim>::reorder_cells(cells);
+    tria.create_triangulation_compatibility(vertices, cells, SubCellData());
 
     tria.set_all_manifold_ids(0);
     tria.set_manifold(0, TorusManifold<2>(R, r));
@@ -2258,6 +2250,11 @@ namespace GridGenerator
   // Parallelepiped implementation in 1d, 2d, and 3d. @note The
   // implementation in 1d is similar to hyper_rectangle(), and in 2d is
   // similar to parallelogram().
+  //
+  // The GridReordering::reorder_grid is made use of towards the end of
+  // this function. Thus the triangulation is explicitly constructed for
+  // all dim here since it is slightly different in that respect
+  // (cf. hyper_rectangle(), parallelogram()).
   template <int dim, int spacedim>
   void
   subdivided_parallelepiped(Triangulation<dim, spacedim> &              tria,
@@ -2476,7 +2473,7 @@ namespace GridGenerator
     // Create triangulation
     // reorder the cells to ensure that they satisfy the convention for
     // edge and face directions
-    GridTools::consistently_order_cells(cells);
+    GridReordering<dim>::reorder_cells(cells, true);
     tria.create_triangulation(points, cells, SubCellData());
 
     // Finally assign boundary indicators according to hyper_rectangle
@@ -3955,16 +3952,6 @@ namespace GridGenerator
   }
 
 
-  template <>
-  void subdivided_cylinder(Triangulation<1> &,
-                           const unsigned int,
-                           const double,
-                           const double)
-  {
-    Assert(false, ExcNotImplemented());
-  }
-
-
 
   template <>
   void
@@ -4481,15 +4468,6 @@ namespace GridGenerator
           }
         ++f;
       }
-  }
-
-  template <>
-  void subdivided_cylinder(Triangulation<2> &,
-                           const unsigned int,
-                           const double,
-                           const double)
-  {
-    Assert(false, ExcNotImplemented());
   }
 
 
@@ -5464,34 +5442,40 @@ namespace GridGenerator
 
   // Implementation for 3D only
   template <>
-  void subdivided_cylinder(Triangulation<3> & tria,
-                           const unsigned int x_subdivisions,
-                           const double       radius,
-                           const double       half_length)
+  void cylinder(Triangulation<3> &tria,
+                const double      radius,
+                const double      half_length)
   {
     // Copy the base from hyper_ball<3>
     // and transform it to yz
-    const double d = radius / std::sqrt(2.0);
-    const double a = d / (1 + std::sqrt(2.0));
-
-    std::vector<Point<3>> vertices;
-    const double          initial_height   = -half_length;
-    const double          height_increment = 2. * half_length / x_subdivisions;
-
-    for (unsigned int rep = 0; rep < (x_subdivisions + 1); ++rep)
-      {
-        const double height = initial_height + height_increment * rep;
-
-        vertices.emplace_back(Point<3>(-d, height, -d));
-        vertices.emplace_back(Point<3>(d, height, -d));
-        vertices.emplace_back(Point<3>(-a, height, -a));
-        vertices.emplace_back(Point<3>(a, height, -a));
-        vertices.emplace_back(Point<3>(-a, height, a));
-        vertices.emplace_back(Point<3>(a, height, a));
-        vertices.emplace_back(Point<3>(-d, height, d));
-        vertices.emplace_back(Point<3>(d, height, d));
-      }
-
+    const double d            = radius / std::sqrt(2.0);
+    const double a            = d / (1 + std::sqrt(2.0));
+    Point<3>     vertices[24] = {
+      Point<3>(-d, -half_length, -d),
+      Point<3>(d, -half_length, -d),
+      Point<3>(-a, -half_length, -a),
+      Point<3>(a, -half_length, -a),
+      Point<3>(-a, -half_length, a),
+      Point<3>(a, -half_length, a),
+      Point<3>(-d, -half_length, d),
+      Point<3>(d, -half_length, d),
+      Point<3>(-d, 0, -d),
+      Point<3>(d, 0, -d),
+      Point<3>(-a, 0, -a),
+      Point<3>(a, 0, -a),
+      Point<3>(-a, 0, a),
+      Point<3>(a, 0, a),
+      Point<3>(-d, 0, d),
+      Point<3>(d, 0, d),
+      Point<3>(-d, half_length, -d),
+      Point<3>(d, half_length, -d),
+      Point<3>(-a, half_length, -a),
+      Point<3>(a, half_length, -a),
+      Point<3>(-a, half_length, a),
+      Point<3>(a, half_length, a),
+      Point<3>(-d, half_length, d),
+      Point<3>(d, half_length, d),
+    };
     // Turn cylinder such that y->x
     for (auto &vertex : vertices)
       {
@@ -5500,29 +5484,18 @@ namespace GridGenerator
         vertex(0)      = h;
       }
 
-    std::vector<std::vector<int>> cell_vertices;
-    cell_vertices.push_back({0, 1, 8, 9, 2, 3, 10, 11});
-    cell_vertices.push_back({0, 2, 8, 10, 6, 4, 14, 12});
-    cell_vertices.push_back({2, 3, 10, 11, 4, 5, 12, 13});
-    cell_vertices.push_back({1, 7, 9, 15, 3, 5, 11, 13});
-    cell_vertices.push_back({6, 4, 14, 12, 7, 5, 15, 13});
+    int cell_vertices[10][8] = {{0, 1, 8, 9, 2, 3, 10, 11},
+                                {0, 2, 8, 10, 6, 4, 14, 12},
+                                {2, 3, 10, 11, 4, 5, 12, 13},
+                                {1, 7, 9, 15, 3, 5, 11, 13},
+                                {6, 4, 14, 12, 7, 5, 15, 13}};
+    for (unsigned int i = 0; i < 5; ++i)
+      for (unsigned int j = 0; j < 8; ++j)
+        cell_vertices[i + 5][j] = cell_vertices[i][j] + 8;
 
-    for (unsigned int rep = 1; rep < x_subdivisions; ++rep)
-      {
-        for (unsigned int i = 0; i < 5; ++i)
-          {
-            std::vector<int> new_cell_vertices(8);
-            for (unsigned int j = 0; j < 8; ++j)
-              new_cell_vertices[j] = cell_vertices[i][j] + 8 * rep;
-            cell_vertices.push_back(new_cell_vertices);
-          }
-      }
+    std::vector<CellData<3>> cells(10, CellData<3>());
 
-    unsigned int n_cells = x_subdivisions * 5;
-
-    std::vector<CellData<3>> cells(n_cells, CellData<3>());
-
-    for (unsigned int i = 0; i < n_cells; ++i)
+    for (unsigned int i = 0; i < 10; ++i)
       {
         for (unsigned int j = 0; j < 8; ++j)
           cells[i].vertices[j] = cell_vertices[i][j];
@@ -5544,9 +5517,12 @@ namespace GridGenerator
     // interior if one of its vertices
     // is at coordinates '+-a' as set
     // above
+    Triangulation<3>::cell_iterator cell = tria.begin();
+    Triangulation<3>::cell_iterator end  = tria.end();
+
     tria.set_all_manifold_ids_on_boundary(0);
 
-    for (const auto &cell : tria.cell_iterators())
+    for (; cell != end; ++cell)
       for (unsigned int i : GeometryInfo<3>::face_indices())
         if (cell->at_boundary(i))
           {
@@ -5588,14 +5564,6 @@ namespace GridGenerator
     tria.set_manifold(0, CylindricalManifold<3>());
   }
 
-  // Implementation for 3D only
-  template <>
-  void cylinder(Triangulation<3> &tria,
-                const double      radius,
-                const double      half_length)
-  {
-    subdivided_cylinder(tria, 2, radius, half_length);
-  }
 
   template <>
   void quarter_hyper_ball(Triangulation<3> &tria,
@@ -6434,7 +6402,7 @@ namespace GridGenerator
 
     // reorder the cells to ensure that they satisfy the convention for
     // edge and face directions
-    GridTools::consistently_order_cells(cells);
+    GridReordering<dim, spacedim>::reorder_cells(cells, true);
     result.clear();
     result.create_triangulation(vertices, cells, subcell_data);
   }
@@ -6667,7 +6635,7 @@ namespace GridGenerator
           1e-6 * input.begin_active()->diameter());
         // delete_duplicated_vertices also deletes any unused vertices
         // deal with any reordering issues created by delete_duplicated_vertices
-        GridTools::consistently_order_cells(output_cell_data);
+        GridReordering<dim>::reorder_cells(output_cell_data, true);
         // clean up the boundary ids of the boundary objects: note that we
         // have to do this after delete_duplicated_vertices so that boundary
         // objects are actually duplicated at this point
@@ -7065,12 +7033,12 @@ namespace GridGenerator
 
     // use all of this to finally create the extruded 3d
     // triangulation.  it is not necessary to call
-    // GridTools::consistently_order_cells() because the cells we have
+    // GridReordering<3,3>::reorder_cells because the cells we have
     // constructed above are automatically correctly oriented. this is
     // because the 2d base mesh is always correctly oriented, and
     // extruding it automatically yields a correctly oriented 3d mesh,
     // as discussed in the edge orientation paper mentioned in the
-    // introduction to the @ref reordering "reordering module".
+    // introduction to the GridReordering class.
     result.create_triangulation(points, cells, subcell_data);
 
     for (auto manifold_id_it = priorities.rbegin();
@@ -8267,6 +8235,9 @@ namespace GridGenerator
     const Point<dim> &               p2,
     const bool                       colorize)
   {
+#  ifndef DEAL_II_WITH_SIMPLEX_SUPPORT
+    Assert(false, ExcNeedsSimplexSupport());
+#  endif
     AssertDimension(dim, spacedim);
 
     AssertThrow(colorize == false, ExcNotImplemented());
