@@ -171,16 +171,14 @@ namespace
             {
               switch (dim)
                 {
-                  case 2:
-                    {
+                    case 2: {
                       connectivity->tree_to_face
                         [index * GeometryInfo<dim>::faces_per_cell + f] =
                         cell->neighbor_of_neighbor(f);
                       break;
                     }
 
-                  case 3:
-                    {
+                    case 3: {
                       /*
                        * The values for tree_to_face are in 0..23 where ttf % 6
                        * gives the face number and ttf / 4 the face orientation
@@ -564,6 +562,113 @@ namespace
         cell->clear_coarsen_flag();
         cell->set_subdomain_id(ghost_owner);
       }
+  }
+
+
+
+  template <int dim, int spacedim>
+  class PartitionSearch
+  {
+  public:
+    /**
+     * Convenience typedef
+     */
+    using ForestType = typename dealii::internal::p4est::types<dim>::forest;
+
+    PartitionSearch();
+
+    PartitionSearch(const PartitionSearch<dim, spacedim> &other) = delete;
+
+    PartitionSearch<dim> &
+    operator=(const PartitionSearch<dim, spacedim> &other) = delete;
+
+
+    /**
+     * Callback exectuted before point function. Last argument is always
+     * nullptr.
+     */
+    static int
+    local_quadrant_fn(typename internal::types<dim>::forest *  forest,
+                      typename internal::types<dim>::topidx    which_tree,
+                      typename internal::types<dim>::quadrant *quadrant,
+                      int                                      rank_begin,
+                      int                                      rank_end,
+                      void *                                   point);
+
+    /**
+     * Callback for point function.
+     */
+    static int
+    local_point_fn(typename internal::types<dim>::forest *  forest,
+                   typename internal::types<dim>::topidx    which_tree,
+                   typename internal::types<dim>::quadrant *quadrant,
+                   int                                      rank_begin,
+                   int                                      rank_end,
+                   void *                                   point);
+    /*******************************/
+    /*******************************/
+
+  private:
+    /**
+     * Simple struct to keep relavant data. Can be accessed though p4est's user
+     * pointer.
+     */
+    struct QuadrantData
+    {
+      Point<dim> p;
+    };
+  };
+
+
+
+  template <int dim, int spacedim>
+  int
+  PartitionSearch<dim, spacedim>::local_quadrant_fn(
+    typename internal::types<dim>::forest *  forest,
+    typename internal::types<dim>::topidx    which_tree,
+    typename internal::types<dim>::quadrant *quadrant,
+    int                                      rank_begin,
+    int                                      rank_end,
+    void * /* this is always nullptr */      point)
+  {
+    // we need the user pointer
+    PartitionSearch<dim, spacedim> *this_object =
+      reinterpret_cast<PartitionSearch<dim, spacedim> *>(forest->user_pointer);
+
+    double lower_left_front_corner[3] = {0, 0, 0};
+
+    p4est_qcoord_to_vertex(forest->connectivity,
+                           which_tree,
+                           quadrant->x,
+                           quadrant->y,
+#  ifdef P4_TO_P8
+                           quadrant->z,
+#  endif
+                           lower_left_front_corner);
+
+    typename internal::types<dim>::quadrant qh;
+
+    // always return true since we must decide by point
+    return /* true */ 1;
+  }
+
+
+
+  template <int dim, int spacedim>
+  int
+  PartitionSearch<dim, spacedim>::local_point_fn(
+    typename internal::types<dim>::forest *  forest,
+    typename internal::types<dim>::topidx    which_tree,
+    typename internal::types<dim>::quadrant *quadrant,
+    int                                      rank_begin,
+    int                                      rank_end,
+    void *                                   point)
+  {
+    // we need the user pointer
+    PartitionSearch<dim, spacedim> *this_object =
+      reinterpret_cast<PartitionSearch<dim, spacedim> *>(forest->user_pointer);
+
+    return /* false */ 0;
   }
 
 
@@ -1706,8 +1811,7 @@ namespace parallel
 #  ifndef DOXYGEN
 
     template <>
-    void
-    Triangulation<2, 2>::copy_new_triangulation_to_p4est(
+    void Triangulation<2, 2>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 2;
@@ -1773,8 +1877,7 @@ namespace parallel
     // TODO: This is a verbatim copy of the 2,2 case. However, we can't just
     // specialize the dim template argument, but let spacedim open
     template <>
-    void
-    Triangulation<2, 3>::copy_new_triangulation_to_p4est(
+    void Triangulation<2, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 3;
@@ -1838,8 +1941,7 @@ namespace parallel
 
 
     template <>
-    void
-    Triangulation<3, 3>::copy_new_triangulation_to_p4est(
+    void Triangulation<3, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 3>)
     {
       const int dim = 3, spacedim = 3;
@@ -2226,8 +2328,7 @@ namespace parallel
               "Infinite loop in "
               "parallel::distributed::Triangulation::prepare_coarsening_and_refinement() "
               "for periodic boundaries detected. Aborting."));
-        }
-      while (mesh_changed);
+      } while (mesh_changed);
 
       // check if any of the refinement flags were changed during this
       // function and return that value
@@ -2349,7 +2450,7 @@ namespace parallel
                   // comes out of this cell.
 
                   typename dealii::internal::p4est::types<dim>::quadrant
-                                                                      p4est_coarse_cell;
+                    p4est_coarse_cell;
                   typename dealii::internal::p4est::types<dim>::tree *tree =
                     init_tree(cell->index());
 
@@ -2421,8 +2522,7 @@ namespace parallel
               // distorted cells
               Assert(false, ExcInternalError());
             }
-        }
-      while (mesh_changed);
+      } while (mesh_changed);
 
 #  ifdef DEBUG
       // check if correct number of ghosts is created
@@ -2574,6 +2674,71 @@ namespace parallel
       // repartitioning, further refinement/coarsening, and unpacking
       // of stored or transferred data.
       update_cell_relations();
+    }
+
+    template <int dim, int spacedim>
+    unsigned int
+    Triangulation<dim, spacedim>::find_point_owner_rank(const Point<dim> &p)
+    {
+      // Call the other function
+      std::vector<Point<dim>>   point(p);
+      std::vector<unsigned int> owner = find_point_owner_rank(point);
+
+      return owner[0];
+    }
+
+    template <int dim, int spacedim>
+    std::vector<unsigned int>
+    Triangulation<dim, spacedim>::find_point_owner_rank(
+      const std::vector<Point<dim> &> points)
+    {
+      // Create object for callback
+      PartitionSearch<dim, spacedim> partition_search;
+
+      // Pointer should be this triangualtion before we set it to something else
+      Assert(parallel_forest->user_pointer == this, ExcInternalError());
+
+      // re-assigne p4est's user pointer
+      parallel_forest->user_pointer = &partition_search;
+
+      /*
+       * ********************************************
+       * Copy points into p4est internal array data struct
+       */
+      // pointer to an array of points.
+      sc_array_t *point_sc_array;
+      // allocate memory for a number of dim-dimensional points
+      point_sc_array = sc_array_new_count(sizeof(double[dim]), points.size());
+
+      // provide a pointer to access the point's coordinates
+      double *                point_sc_array =
+        static_cast<double *> sc_array_index_int(point_sc_array, 0);
+
+      // now assigne the actual value
+      for (size_t i = 0; i < points.size(); ++i)
+        {
+          // alias
+          const Point<dim> &p = points[i];
+          // get a non-const view of the array
+          double *                this_sc_point =
+            static_cast<double *> sc_array_index_int(point_sc_array, i);
+          // fill this with the point data
+          for (unsigned int d = 0; d < dim; ++d)
+            {
+              this_sc_point[d] = p(d);
+            }
+        }
+      /*********************************************/
+
+      dealii::internal::p4est::functions<dim>::search_partition(
+        parallel_forest,
+        /* execute quadrant function when leaving quadrant */ false,
+        &PartitionSearch<dim, spacedim>::local_quadrant_fn,
+        &PartitionSearch<dim, spacedim>::local_point_fn,
+        point_sc_array);
+
+      // reset the internal pointer to this triangulation
+      parallel_forest->user_pointer = this;
     }
 
 
@@ -3144,7 +3309,7 @@ namespace parallel
               const unsigned int     second_dealii_idx_on_face =
                 lower_idx == 0 ? left_to_right[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face] :
-                                 right_to_left[face_pair.orientation.to_ulong()]
+                                     right_to_left[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face];
               const unsigned int second_dealii_idx_on_cell =
                 GeometryInfo<dim>::face_to_cell_vertices(
@@ -3406,9 +3571,8 @@ namespace parallel
 
               case parallel::distributed::Triangulation<dim,
                                                         spacedim>::CELL_REFINE:
-              case parallel::distributed::Triangulation<dim,
-                                                        spacedim>::CELL_INVALID:
-                {
+                case parallel::distributed::Triangulation<dim, spacedim>::
+                  CELL_INVALID: {
                   // calculate weight of parent cell
                   unsigned int parent_weight = 1000;
                   parent_weight += this->signals.cell_weight(
