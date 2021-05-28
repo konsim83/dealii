@@ -363,8 +363,8 @@ namespace parallel
       explicit Triangulation(
         const MPI_Comm &mpi_communicator,
         const typename dealii::Triangulation<dim, spacedim>::MeshSmoothing
-          smooth_grid           = (dealii::Triangulation<dim, spacedim>::none),
-        const Settings settings = default_setting);
+                       smooth_grid = (dealii::Triangulation<dim, spacedim>::none),
+        const Settings settings    = default_setting);
 
       /**
        * Destructor.
@@ -453,7 +453,7 @@ namespace parallel
        * distributed mesh.
        */
       std::vector<unsigned int>
-      find_point_owner_rank(const std::vector<Point<dim> &> points);
+      find_point_owner_rank(const std::vector<Point<dim>> &points);
 
       /**
        * Coarsen and refine the mesh according to refinement and coarsening
@@ -776,8 +776,10 @@ namespace parallel
        *
        * This function exists in 2d and 3d variants.
        */
-      void copy_new_triangulation_to_p4est(std::integral_constant<int, 2>);
-      void copy_new_triangulation_to_p4est(std::integral_constant<int, 3>);
+      void
+      copy_new_triangulation_to_p4est(std::integral_constant<int, 2>);
+      void
+      copy_new_triangulation_to_p4est(std::integral_constant<int, 3>);
 
       /**
        * Copy the local part of the refined forest from p4est into the

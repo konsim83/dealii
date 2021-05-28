@@ -26,12 +26,14 @@
 #  include <p4est_extended.h>
 #  include <p4est_ghost.h>
 #  include <p4est_iterate.h>
+#  include <p4est_search.h>
 #  include <p4est_vtk.h>
 #  include <p8est_bits.h>
 #  include <p8est_communication.h>
 #  include <p8est_extended.h>
 #  include <p8est_ghost.h>
 #  include <p8est_iterate.h>
+#  include <p8est_search.h>
 #  include <p8est_vtk.h>
 
 #  include <map>
@@ -87,6 +89,7 @@ namespace internal
       using forest                    = p4est_t;
       using tree                      = p4est_tree_t;
       using quadrant                  = p4est_quadrant_t;
+      using quadrant_coord            = p4est_qcoord_t;
       using topidx                    = p4est_topidx_t;
       using locidx                    = p4est_locidx_t;
       using gloidx                    = p4est_gloidx_t;
@@ -103,6 +106,7 @@ namespace internal
       using forest                    = p8est_t;
       using tree                      = p8est_tree_t;
       using quadrant                  = p8est_quadrant_t;
+      using quadrant_coord            = p4est_qcoord_t;
       using topidx                    = p4est_topidx_t;
       using locidx                    = p4est_locidx_t;
       using gloidx                    = p4est_gloidx_t;
@@ -156,24 +160,24 @@ namespace internal
                                     const types<2>::quadrant *q,
                                     const int                 guess);
 
-      static types<2>::connectivity *(
-        &connectivity_new)(types<2>::topidx num_vertices,
-                           types<2>::topidx num_trees,
-                           types<2>::topidx num_corners,
-                           types<2>::topidx num_vtt);
+      static types<2>::connectivity *(&connectivity_new)(
+        types<2>::topidx num_vertices,
+        types<2>::topidx num_trees,
+        types<2>::topidx num_corners,
+        types<2>::topidx num_vtt);
 
-      static types<2>::connectivity *(
-        &connectivity_new_copy)(types<2>::topidx        num_vertices,
-                                types<2>::topidx        num_trees,
-                                types<2>::topidx        num_corners,
-                                const double *          vertices,
-                                const types<2>::topidx *ttv,
-                                const types<2>::topidx *ttt,
-                                const int8_t *          ttf,
-                                const types<2>::topidx *ttc,
-                                const types<2>::topidx *coff,
-                                const types<2>::topidx *ctt,
-                                const int8_t *          ctc);
+      static types<2>::connectivity *(&connectivity_new_copy)(
+        types<2>::topidx        num_vertices,
+        types<2>::topidx        num_trees,
+        types<2>::topidx        num_corners,
+        const double *          vertices,
+        const types<2>::topidx *ttv,
+        const types<2>::topidx *ttt,
+        const int8_t *          ttf,
+        const types<2>::topidx *ttc,
+        const types<2>::topidx *coff,
+        const types<2>::topidx *ctt,
+        const int8_t *          ctc);
 
       static void (&connectivity_join_faces)(types<2>::connectivity *conn,
                                              types<2>::topidx        tree_left,
@@ -186,15 +190,15 @@ namespace internal
 
       static void (&connectivity_destroy)(p4est_connectivity_t *connectivity);
 
-      static types<2>::forest *(
-        &new_forest)(MPI_Comm                mpicomm,
-                     types<2>::connectivity *connectivity,
-                     types<2>::locidx        min_quadrants,
-                     int                     min_level,
-                     int                     fill_uniform,
-                     std::size_t             data_size,
-                     p4est_init_t            init_fn,
-                     void *                  user_pointer);
+      static types<2>::forest *(&new_forest)(
+        MPI_Comm                mpicomm,
+        types<2>::connectivity *connectivity,
+        types<2>::locidx        min_quadrants,
+        int                     min_level,
+        int                     fill_uniform,
+        std::size_t             data_size,
+        p4est_init_t            init_fn,
+        void *                  user_pointer);
 
       static types<2>::forest *(&copy_forest)(types<2>::forest *input,
                                               int               copy_data);
@@ -263,9 +267,9 @@ namespace internal
 
       template <int spacedim>
       static void
-      iterate(dealii::internal::p4est::types<2>::forest *parallel_forest,
-              dealii::internal::p4est::types<2>::ghost * parallel_ghost,
-              void *                                     user_data);
+        iterate(dealii::internal::p4est::types<2>::forest *parallel_forest,
+                dealii::internal::p4est::types<2>::ghost * parallel_ghost,
+                void *                                     user_data);
 
       static constexpr unsigned int max_level = P4EST_MAXLEVEL;
 
@@ -277,14 +281,14 @@ namespace internal
                                     const void *            src_data,
                                     std::size_t             data_size);
 
-      static types<2>::transfer_context *(
-        &transfer_fixed_begin)(const types<2>::gloidx *dest_gfq,
-                               const types<2>::gloidx *src_gfq,
-                               MPI_Comm                mpicomm,
-                               int                     tag,
-                               void *                  dest_data,
-                               const void *            src_data,
-                               std::size_t             data_size);
+      static types<2>::transfer_context *(&transfer_fixed_begin)(
+        const types<2>::gloidx *dest_gfq,
+        const types<2>::gloidx *src_gfq,
+        MPI_Comm                mpicomm,
+        int                     tag,
+        void *                  dest_data,
+        const void *            src_data,
+        std::size_t             data_size);
 
       static void (&transfer_fixed_end)(types<2>::transfer_context *tc);
 
@@ -297,15 +301,15 @@ namespace internal
                                      const void *            src_data,
                                      const int *             src_sizes);
 
-      static types<2>::transfer_context *(
-        &transfer_custom_begin)(const types<2>::gloidx *dest_gfq,
-                                const types<2>::gloidx *src_gfq,
-                                MPI_Comm                mpicomm,
-                                int                     tag,
-                                void *                  dest_data,
-                                const int *             dest_sizes,
-                                const void *            src_data,
-                                const int *             src_sizes);
+      static types<2>::transfer_context *(&transfer_custom_begin)(
+        const types<2>::gloidx *dest_gfq,
+        const types<2>::gloidx *src_gfq,
+        MPI_Comm                mpicomm,
+        int                     tag,
+        void *                  dest_data,
+        const int *             dest_sizes,
+        const void *            src_data,
+        const int *             src_sizes);
 
       static void (&transfer_custom_end)(types<2>::transfer_context *tc);
 
@@ -349,31 +353,31 @@ namespace internal
                                     const types<3>::quadrant *q,
                                     const int                 guess);
 
-      static types<3>::connectivity *(
-        &connectivity_new)(types<3>::topidx num_vertices,
-                           types<3>::topidx num_trees,
-                           types<3>::topidx num_edges,
-                           types<3>::topidx num_ett,
-                           types<3>::topidx num_corners,
-                           types<3>::topidx num_ctt);
+      static types<3>::connectivity *(&connectivity_new)(
+        types<3>::topidx num_vertices,
+        types<3>::topidx num_trees,
+        types<3>::topidx num_edges,
+        types<3>::topidx num_ett,
+        types<3>::topidx num_corners,
+        types<3>::topidx num_ctt);
 
-      static types<3>::connectivity *(
-        &connectivity_new_copy)(types<3>::topidx        num_vertices,
-                                types<3>::topidx        num_trees,
-                                types<3>::topidx        num_edges,
-                                types<3>::topidx        num_corners,
-                                const double *          vertices,
-                                const types<3>::topidx *ttv,
-                                const types<3>::topidx *ttt,
-                                const int8_t *          ttf,
-                                const types<3>::topidx *tte,
-                                const types<3>::topidx *eoff,
-                                const types<3>::topidx *ett,
-                                const int8_t *          ete,
-                                const types<3>::topidx *ttc,
-                                const types<3>::topidx *coff,
-                                const types<3>::topidx *ctt,
-                                const int8_t *          ctc);
+      static types<3>::connectivity *(&connectivity_new_copy)(
+        types<3>::topidx        num_vertices,
+        types<3>::topidx        num_trees,
+        types<3>::topidx        num_edges,
+        types<3>::topidx        num_corners,
+        const double *          vertices,
+        const types<3>::topidx *ttv,
+        const types<3>::topidx *ttt,
+        const int8_t *          ttf,
+        const types<3>::topidx *tte,
+        const types<3>::topidx *eoff,
+        const types<3>::topidx *ett,
+        const int8_t *          ete,
+        const types<3>::topidx *ttc,
+        const types<3>::topidx *coff,
+        const types<3>::topidx *ctt,
+        const int8_t *          ctc);
 
       static void (&connectivity_join_faces)(types<3>::connectivity *conn,
                                              types<3>::topidx        tree_left,
@@ -384,15 +388,15 @@ namespace internal
 
       static void (&connectivity_destroy)(p8est_connectivity_t *connectivity);
 
-      static types<3>::forest *(
-        &new_forest)(MPI_Comm                mpicomm,
-                     types<3>::connectivity *connectivity,
-                     types<3>::locidx        min_quadrants,
-                     int                     min_level,
-                     int                     fill_uniform,
-                     std::size_t             data_size,
-                     p8est_init_t            init_fn,
-                     void *                  user_pointer);
+      static types<3>::forest *(&new_forest)(
+        MPI_Comm                mpicomm,
+        types<3>::connectivity *connectivity,
+        types<3>::locidx        min_quadrants,
+        int                     min_level,
+        int                     fill_uniform,
+        std::size_t             data_size,
+        p8est_init_t            init_fn,
+        void *                  user_pointer);
 
       static types<3>::forest *(&copy_forest)(types<3>::forest *input,
                                               int               copy_data);
@@ -468,14 +472,14 @@ namespace internal
                                     const void *            src_data,
                                     std::size_t             data_size);
 
-      static types<3>::transfer_context *(
-        &transfer_fixed_begin)(const types<3>::gloidx *dest_gfq,
-                               const types<3>::gloidx *src_gfq,
-                               MPI_Comm                mpicomm,
-                               int                     tag,
-                               void *                  dest_data,
-                               const void *            src_data,
-                               std::size_t             data_size);
+      static types<3>::transfer_context *(&transfer_fixed_begin)(
+        const types<3>::gloidx *dest_gfq,
+        const types<3>::gloidx *src_gfq,
+        MPI_Comm                mpicomm,
+        int                     tag,
+        void *                  dest_data,
+        const void *            src_data,
+        std::size_t             data_size);
 
       static void (&transfer_fixed_end)(types<3>::transfer_context *tc);
 
@@ -488,15 +492,15 @@ namespace internal
                                      const void *            src_data,
                                      const int *             src_sizes);
 
-      static types<3>::transfer_context *(
-        &transfer_custom_begin)(const types<3>::gloidx *dest_gfq,
-                                const types<3>::gloidx *src_gfq,
-                                MPI_Comm                mpicomm,
-                                int                     tag,
-                                void *                  dest_data,
-                                const int *             dest_sizes,
-                                const void *            src_data,
-                                const int *             src_sizes);
+      static types<3>::transfer_context *(&transfer_custom_begin)(
+        const types<3>::gloidx *dest_gfq,
+        const types<3>::gloidx *src_gfq,
+        MPI_Comm                mpicomm,
+        int                     tag,
+        void *                  dest_data,
+        const int *             dest_sizes,
+        const void *            src_data,
+        const int *             src_sizes);
 
       static void (&transfer_custom_end)(types<3>::transfer_context *tc);
 
