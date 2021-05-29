@@ -319,6 +319,13 @@ namespace internal
         types<2>::search_partition_callback quadrant_fn,
         types<2>::search_partition_callback point_fn,
         sc_array_t *                        points);
+
+      static void (&quadrant_coord_to_vertex)(
+        types<2>::connectivity * connectivity,
+        types<2>::topidx         treeid,
+        types<2>::quadrant_coord x,
+        types<2>::quadrant_coord y,
+        double                   vxyz[3]);
     };
 
 
@@ -510,6 +517,14 @@ namespace internal
         types<3>::search_partition_callback quadrant_fn,
         types<3>::search_partition_callback point_fn,
         sc_array_t *                        points);
+
+      static void (&quadrant_coord_to_vertex)(
+        types<3>::connectivity * connectivity,
+        types<3>::topidx         treeid,
+        types<3>::quadrant_coord x,
+        types<3>::quadrant_coord y,
+        types<3>::quadrant_coord z,
+        double                   vxyz[3]);
     };
 
 

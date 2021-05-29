@@ -374,26 +374,24 @@ namespace internal
                                          const int                 guess) =
       p4est_comm_find_owner;
 
-    types<2>::connectivity *(
-      &functions<2>::connectivity_new)(types<2>::topidx num_vertices,
-                                       types<2>::topidx num_trees,
-                                       types<2>::topidx num_corners,
-                                       types<2>::topidx num_vtt) =
-      p4est_connectivity_new;
+    types<2>::connectivity *(&functions<2>::connectivity_new)(
+      types<2>::topidx num_vertices,
+      types<2>::topidx num_trees,
+      types<2>::topidx num_corners,
+      types<2>::topidx num_vtt) = p4est_connectivity_new;
 
-    types<2>::connectivity *(
-      &functions<2>::connectivity_new_copy)(types<2>::topidx num_vertices,
-                                            types<2>::topidx num_trees,
-                                            types<2>::topidx num_corners,
-                                            const double *   vertices,
-                                            const types<2>::topidx *ttv,
-                                            const types<2>::topidx *ttt,
-                                            const int8_t *          ttf,
-                                            const types<2>::topidx *ttc,
-                                            const types<2>::topidx *coff,
-                                            const types<2>::topidx *ctt,
-                                            const int8_t *          ctc) =
-      p4est_connectivity_new_copy;
+    types<2>::connectivity *(&functions<2>::connectivity_new_copy)(
+      types<2>::topidx        num_vertices,
+      types<2>::topidx        num_trees,
+      types<2>::topidx        num_corners,
+      const double *          vertices,
+      const types<2>::topidx *ttv,
+      const types<2>::topidx *ttt,
+      const int8_t *          ttf,
+      const types<2>::topidx *ttc,
+      const types<2>::topidx *coff,
+      const types<2>::topidx *ctt,
+      const int8_t *          ctc) = p4est_connectivity_new_copy;
 
     void (&functions<2>::connectivity_join_faces)(types<2>::connectivity *conn,
                                                   types<2>::topidx tree_left,
@@ -406,15 +404,15 @@ namespace internal
     void (&functions<2>::connectivity_destroy)(
       p4est_connectivity_t *connectivity) = p4est_connectivity_destroy;
 
-    types<2>::forest *(
-      &functions<2>::new_forest)(MPI_Comm                mpicomm,
-                                 types<2>::connectivity *connectivity,
-                                 types<2>::locidx        min_quadrants,
-                                 int                     min_level,
-                                 int                     fill_uniform,
-                                 std::size_t             data_size,
-                                 p4est_init_t            init_fn,
-                                 void *user_pointer) = p4est_new_ext;
+    types<2>::forest *(&functions<2>::new_forest)(
+      MPI_Comm                mpicomm,
+      types<2>::connectivity *connectivity,
+      types<2>::locidx        min_quadrants,
+      int                     min_level,
+      int                     fill_uniform,
+      std::size_t             data_size,
+      p4est_init_t            init_fn,
+      void *                  user_pointer) = p4est_new_ext;
 
     types<2>::forest *(&functions<2>::copy_forest)(types<2>::forest *input,
                                                    int copy_data) = p4est_copy;
@@ -444,15 +442,15 @@ namespace internal
                                types<2>::forest *p4est,
                                int               save_data) = p4est_save;
 
-    types<2>::forest *(
-      &functions<2>::load_ext)(const char *             filename,
-                               MPI_Comm                 mpicomm,
-                               std::size_t              data_size,
-                               int                      load_data,
-                               int                      autopartition,
-                               int                      broadcasthead,
-                               void *                   user_pointer,
-                               types<2>::connectivity **p4est) = p4est_load_ext;
+    types<2>::forest *(&functions<2>::load_ext)(
+      const char *             filename,
+      MPI_Comm                 mpicomm,
+      std::size_t              data_size,
+      int                      load_data,
+      int                      autopartition,
+      int                      broadcasthead,
+      void *                   user_pointer,
+      types<2>::connectivity **p4est) = p4est_load_ext;
 
     int (&functions<2>::connectivity_save)(
       const char *            filename,
@@ -461,10 +459,9 @@ namespace internal
     int (&functions<2>::connectivity_is_valid)(
       types<2>::connectivity *connectivity) = p4est_connectivity_is_valid;
 
-    types<2>::connectivity *(
-      &functions<2>::connectivity_load)(const char * filename,
-                                        std::size_t *length) =
-      p4est_connectivity_load;
+    types<2>::connectivity *(&functions<2>::connectivity_load)(
+      const char * filename,
+      std::size_t *length) = p4est_connectivity_load;
 
     unsigned int (&functions<2>::checksum)(types<2>::forest *p4est) =
       p4est_checksum;
@@ -503,15 +500,14 @@ namespace internal
                                          std::size_t             data_size) =
       p4est_transfer_fixed;
 
-    types<2>::transfer_context *(
-      &functions<2>::transfer_fixed_begin)(const types<2>::gloidx *dest_gfq,
-                                           const types<2>::gloidx *src_gfq,
-                                           MPI_Comm                mpicomm,
-                                           int                     tag,
-                                           void *                  dest_data,
-                                           const void *            src_data,
-                                           std::size_t             data_size) =
-      p4est_transfer_fixed_begin;
+    types<2>::transfer_context *(&functions<2>::transfer_fixed_begin)(
+      const types<2>::gloidx *dest_gfq,
+      const types<2>::gloidx *src_gfq,
+      MPI_Comm                mpicomm,
+      int                     tag,
+      void *                  dest_data,
+      const void *            src_data,
+      std::size_t             data_size) = p4est_transfer_fixed_begin;
 
     void (&functions<2>::transfer_fixed_end)(types<2>::transfer_context *tc) =
       p4est_transfer_fixed_end;
@@ -526,16 +522,15 @@ namespace internal
                                           const int *             src_sizes) =
       p4est_transfer_custom;
 
-    types<2>::transfer_context *(
-      &functions<2>::transfer_custom_begin)(const types<2>::gloidx *dest_gfq,
-                                            const types<2>::gloidx *src_gfq,
-                                            MPI_Comm                mpicomm,
-                                            int                     tag,
-                                            void *                  dest_data,
-                                            const int *             dest_sizes,
-                                            const void *            src_data,
-                                            const int *             src_sizes) =
-      p4est_transfer_custom_begin;
+    types<2>::transfer_context *(&functions<2>::transfer_custom_begin)(
+      const types<2>::gloidx *dest_gfq,
+      const types<2>::gloidx *src_gfq,
+      MPI_Comm                mpicomm,
+      int                     tag,
+      void *                  dest_data,
+      const int *             dest_sizes,
+      const void *            src_data,
+      const int *             src_sizes) = p4est_transfer_custom_begin;
 
     void (&functions<2>::transfer_custom_end)(types<2>::transfer_context *tc) =
       p4est_transfer_custom_end;
@@ -547,7 +542,12 @@ namespace internal
       types<2>::search_partition_callback point_fn,
       sc_array_t *                        points) = p4est_search_partition;
 
-
+    void (&functions<2>::quadrant_coord_to_vertex)(
+      types<2>::connectivity * connectivity,
+      types<2>::topidx         treeid,
+      types<2>::quadrant_coord x,
+      types<2>::quadrant_coord y,
+      double                   vxyz[3]) = p4est_qcoord_to_vertex;
 
     int (&functions<3>::quadrant_compare)(const void *v1, const void *v2) =
       p8est_quadrant_compare;
@@ -587,33 +587,31 @@ namespace internal
                                          const int                 guess) =
       p8est_comm_find_owner;
 
-    types<3>::connectivity *(
-      &functions<3>::connectivity_new)(types<3>::topidx num_vertices,
-                                       types<3>::topidx num_trees,
-                                       types<3>::topidx num_edges,
-                                       types<3>::topidx num_ett,
-                                       types<3>::topidx num_corners,
-                                       types<3>::topidx num_ctt) =
-      p8est_connectivity_new;
+    types<3>::connectivity *(&functions<3>::connectivity_new)(
+      types<3>::topidx num_vertices,
+      types<3>::topidx num_trees,
+      types<3>::topidx num_edges,
+      types<3>::topidx num_ett,
+      types<3>::topidx num_corners,
+      types<3>::topidx num_ctt) = p8est_connectivity_new;
 
-    types<3>::connectivity *(
-      &functions<3>::connectivity_new_copy)(types<3>::topidx num_vertices,
-                                            types<3>::topidx num_trees,
-                                            types<3>::topidx num_edges,
-                                            types<3>::topidx num_corners,
-                                            const double *   vertices,
-                                            const types<3>::topidx *ttv,
-                                            const types<3>::topidx *ttt,
-                                            const int8_t *          ttf,
-                                            const types<3>::topidx *tte,
-                                            const types<3>::topidx *eoff,
-                                            const types<3>::topidx *ett,
-                                            const int8_t *          ete,
-                                            const types<3>::topidx *ttc,
-                                            const types<3>::topidx *coff,
-                                            const types<3>::topidx *ctt,
-                                            const int8_t *          ctc) =
-      p8est_connectivity_new_copy;
+    types<3>::connectivity *(&functions<3>::connectivity_new_copy)(
+      types<3>::topidx        num_vertices,
+      types<3>::topidx        num_trees,
+      types<3>::topidx        num_edges,
+      types<3>::topidx        num_corners,
+      const double *          vertices,
+      const types<3>::topidx *ttv,
+      const types<3>::topidx *ttt,
+      const int8_t *          ttf,
+      const types<3>::topidx *tte,
+      const types<3>::topidx *eoff,
+      const types<3>::topidx *ett,
+      const int8_t *          ete,
+      const types<3>::topidx *ttc,
+      const types<3>::topidx *coff,
+      const types<3>::topidx *ctt,
+      const int8_t *          ctc) = p8est_connectivity_new_copy;
 
     void (&functions<3>::connectivity_destroy)(
       p8est_connectivity_t *connectivity) = p8est_connectivity_destroy;
@@ -626,15 +624,15 @@ namespace internal
                                                   int orientation) =
       p8est_connectivity_join_faces;
 
-    types<3>::forest *(
-      &functions<3>::new_forest)(MPI_Comm                mpicomm,
-                                 types<3>::connectivity *connectivity,
-                                 types<3>::locidx        min_quadrants,
-                                 int                     min_level,
-                                 int                     fill_uniform,
-                                 std::size_t             data_size,
-                                 p8est_init_t            init_fn,
-                                 void *user_pointer) = p8est_new_ext;
+    types<3>::forest *(&functions<3>::new_forest)(
+      MPI_Comm                mpicomm,
+      types<3>::connectivity *connectivity,
+      types<3>::locidx        min_quadrants,
+      int                     min_level,
+      int                     fill_uniform,
+      std::size_t             data_size,
+      p8est_init_t            init_fn,
+      void *                  user_pointer) = p8est_new_ext;
 
     types<3>::forest *(&functions<3>::copy_forest)(types<3>::forest *input,
                                                    int copy_data) = p8est_copy;
@@ -664,15 +662,15 @@ namespace internal
                                types<3>::forest *p4est,
                                int               save_data) = p8est_save;
 
-    types<3>::forest *(
-      &functions<3>::load_ext)(const char *             filename,
-                               MPI_Comm                 mpicomm,
-                               std::size_t              data_size,
-                               int                      load_data,
-                               int                      autopartition,
-                               int                      broadcasthead,
-                               void *                   user_pointer,
-                               types<3>::connectivity **p4est) = p8est_load_ext;
+    types<3>::forest *(&functions<3>::load_ext)(
+      const char *             filename,
+      MPI_Comm                 mpicomm,
+      std::size_t              data_size,
+      int                      load_data,
+      int                      autopartition,
+      int                      broadcasthead,
+      void *                   user_pointer,
+      types<3>::connectivity **p4est) = p8est_load_ext;
 
     int (&functions<3>::connectivity_save)(
       const char *            filename,
@@ -681,10 +679,9 @@ namespace internal
     int (&functions<3>::connectivity_is_valid)(
       types<3>::connectivity *connectivity) = p8est_connectivity_is_valid;
 
-    types<3>::connectivity *(
-      &functions<3>::connectivity_load)(const char * filename,
-                                        std::size_t *length) =
-      p8est_connectivity_load;
+    types<3>::connectivity *(&functions<3>::connectivity_load)(
+      const char * filename,
+      std::size_t *length) = p8est_connectivity_load;
 
     unsigned int (&functions<3>::checksum)(types<3>::forest *p8est) =
       p8est_checksum;
@@ -723,15 +720,14 @@ namespace internal
                                          std::size_t             data_size) =
       p8est_transfer_fixed;
 
-    types<3>::transfer_context *(
-      &functions<3>::transfer_fixed_begin)(const types<3>::gloidx *dest_gfq,
-                                           const types<3>::gloidx *src_gfq,
-                                           MPI_Comm                mpicomm,
-                                           int                     tag,
-                                           void *                  dest_data,
-                                           const void *            src_data,
-                                           std::size_t             data_size) =
-      p8est_transfer_fixed_begin;
+    types<3>::transfer_context *(&functions<3>::transfer_fixed_begin)(
+      const types<3>::gloidx *dest_gfq,
+      const types<3>::gloidx *src_gfq,
+      MPI_Comm                mpicomm,
+      int                     tag,
+      void *                  dest_data,
+      const void *            src_data,
+      std::size_t             data_size) = p8est_transfer_fixed_begin;
 
     void (&functions<3>::transfer_fixed_end)(types<3>::transfer_context *tc) =
       p8est_transfer_fixed_end;
@@ -746,16 +742,15 @@ namespace internal
                                           const int *             src_sizes) =
       p8est_transfer_custom;
 
-    types<3>::transfer_context *(
-      &functions<3>::transfer_custom_begin)(const types<3>::gloidx *dest_gfq,
-                                            const types<3>::gloidx *src_gfq,
-                                            MPI_Comm                mpicomm,
-                                            int                     tag,
-                                            void *                  dest_data,
-                                            const int *             dest_sizes,
-                                            const void *            src_data,
-                                            const int *             src_sizes) =
-      p8est_transfer_custom_begin;
+    types<3>::transfer_context *(&functions<3>::transfer_custom_begin)(
+      const types<3>::gloidx *dest_gfq,
+      const types<3>::gloidx *src_gfq,
+      MPI_Comm                mpicomm,
+      int                     tag,
+      void *                  dest_data,
+      const int *             dest_sizes,
+      const void *            src_data,
+      const int *             src_sizes) = p8est_transfer_custom_begin;
 
     void (&functions<3>::transfer_custom_end)(types<3>::transfer_context *tc) =
       p8est_transfer_custom_end;
@@ -767,7 +762,13 @@ namespace internal
       types<3>::search_partition_callback point_fn,
       sc_array_t *                        points) = p8est_search_partition;
 
-
+    void (&functions<3>::quadrant_coord_to_vertex)(
+      types<3>::connectivity * connectivity,
+      types<3>::topidx         treeid,
+      types<3>::quadrant_coord x,
+      types<3>::quadrant_coord y,
+      types<3>::quadrant_coord z,
+      double                   vxyz[3]) = p8est_qcoord_to_vertex;
 
     template <int dim>
     void
@@ -902,9 +903,8 @@ namespace internal
 
 
     template <>
-    bool
-    quadrant_is_ancestor<1>(types<1>::quadrant const &q1,
-                            types<1>::quadrant const &q2)
+    bool quadrant_is_ancestor<1>(types<1>::quadrant const &q1,
+                                 types<1>::quadrant const &q2)
     {
       // determine level of quadrants
       const int level_1 = (q1 << types<1>::max_n_child_indices_bits) >>
@@ -951,8 +951,7 @@ namespace internal
 
 
     template <>
-    void
-    init_coarse_quadrant<1>(typename types<1>::quadrant &quad)
+    void init_coarse_quadrant<1>(typename types<1>::quadrant &quad)
     {
       quad = 0;
     }
