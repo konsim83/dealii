@@ -45,14 +45,16 @@ test(const Point<dim> &point)
 
   deallog << "   Number of cells = " << triangulation.n_global_active_cells()
           << std::endl;
-
   deallog << "   Number of levels = " << triangulation.n_levels() << std::endl;
-
-  deallog << "Number of global levels = " << triangulation.n_global_levels()
+  deallog << "   Number of global levels = " << triangulation.n_global_levels()
           << std::endl;
-
   const unsigned int checksum = triangulation.get_checksum();
   deallog << "   Triangulation checksum = " << checksum << std::endl;
+
+  ////////////////////////////////////////////////////////////
+  // test stuff
+
+  ////////////////////////////////////////////////////////////
 
   deallog << "--- Reached end of test ---" << std::endl;
 }
