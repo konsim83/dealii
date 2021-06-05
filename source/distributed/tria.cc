@@ -173,16 +173,14 @@ namespace
             {
               switch (dim)
                 {
-                  case 2:
-                    {
+                    case 2: {
                       connectivity->tree_to_face
                         [index * GeometryInfo<dim>::faces_per_cell + f] =
                         cell->neighbor_of_neighbor(f);
                       break;
                     }
 
-                  case 3:
-                    {
+                    case 3: {
                       /*
                        * The values for tree_to_face are in 0..23 where ttf % 6
                        * gives the face number and ttf / 4 the face orientation
@@ -570,16 +568,16 @@ namespace
 
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   class PartitionSearch
   {
   public:
     PartitionSearch();
 
-    PartitionSearch(const PartitionSearch<dim, spacedim> &other) = delete;
+    PartitionSearch(const PartitionSearch<dim> &other) = delete;
 
-    PartitionSearch<dim, spacedim> &
-    operator=(const PartitionSearch<dim, spacedim> &other) = delete;
+    PartitionSearch<dim> &
+    operator=(const PartitionSearch<dim> &other) = delete;
 
   public:
     /**
@@ -675,9 +673,9 @@ namespace
 
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   int
-  PartitionSearch<dim, spacedim>::local_quadrant_fn(
+  PartitionSearch<dim>::local_quadrant_fn(
     typename internal::p4est::types<dim>::forest *  forest,
     typename internal::p4est::types<dim>::topidx    which_tree,
     typename internal::p4est::types<dim>::quadrant *quadrant,
@@ -689,8 +687,8 @@ namespace
     Assert(point == nullptr, dealii::ExcInternalError());
 
     // we need the user pointer
-    PartitionSearch<dim, spacedim> *this_object =
-      reinterpret_cast<PartitionSearch<dim, spacedim> *>(forest->user_pointer);
+    PartitionSearch<dim> *this_object =
+      reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
 
     // Avoid p4est macros, instead do bitshifts manually with fixed size types
     const typename internal::p4est::types<dim>::quadrant_coord
@@ -712,9 +710,9 @@ namespace
 
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   int
-  PartitionSearch<dim, spacedim>::local_point_fn(
+  PartitionSearch<dim>::local_point_fn(
     typename internal::p4est::types<dim>::forest *  forest,
     typename internal::p4est::types<dim>::topidx    which_tree,
     typename internal::p4est::types<dim>::quadrant *quadrant,
@@ -726,8 +724,8 @@ namespace
     Assert(point != nullptr, dealii::ExcInternalError());
 
     // we need the user pointer
-    PartitionSearch<dim, spacedim> *this_object =
-      reinterpret_cast<PartitionSearch<dim, spacedim> *>(forest->user_pointer);
+    PartitionSearch<dim> *this_object =
+      reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
 
     // point with rank as double pointer
     double *this_point_dptr = static_cast<double *>(point);
@@ -760,9 +758,9 @@ namespace
   }
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   bool
-  PartitionSearch<dim, spacedim>::QuadrantData::is_in_this_quadrant(
+  PartitionSearch<dim>::QuadrantData::is_in_this_quadrant(
     const Point<dim> &p) const
   {
     const Point<dim> p_ref = map_real_to_unit_cell(p);
@@ -771,9 +769,9 @@ namespace
   }
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   Point<dim>
-  PartitionSearch<dim, spacedim>::QuadrantData::map_real_to_unit_cell(
+  PartitionSearch<dim>::QuadrantData::map_real_to_unit_cell(
     const Point<dim> &p) const
   {
     Assert(is_fully_initialized,
@@ -824,8 +822,8 @@ namespace
   }
 
 
-  template <int dim, int spacedim>
-  PartitionSearch<dim, spacedim>::QuadrantData::QuadrantData()
+  template <int dim>
+  PartitionSearch<dim>::QuadrantData::QuadrantData()
     : cell_vertices(GeometryInfo<dim>::vertices_per_cell)
     , quadrant_mapping_matrix(GeometryInfo<dim>::vertices_per_cell,
                               GeometryInfo<dim>::vertices_per_cell)
@@ -835,9 +833,9 @@ namespace
 
 
 
-  template <int dim, int spacedim>
+  template <int dim>
   void
-  PartitionSearch<dim, spacedim>::QuadrantData::initialize_mapping()
+  PartitionSearch<dim>::QuadrantData::initialize_mapping()
   {
     Assert(
       is_initialized_vertices,
@@ -901,262 +899,274 @@ namespace
 
 
 
-  template <int dim, int spacedim>
+  template <>
   void
-  PartitionSearch<dim, spacedim>::QuadrantData::set_cell_vertices(
-    typename internal::p4est::types<dim>::forest *  forest,
-    typename internal::p4est::types<dim>::topidx    which_tree,
-    typename internal::p4est::types<dim>::quadrant *quadrant,
-    const typename internal::p4est::types<dim>::quadrant_coord
+  PartitionSearch<2>::QuadrantData::set_cell_vertices(
+    typename internal::p4est::types<2>::forest *  forest,
+    typename internal::p4est::types<2>::topidx    which_tree,
+    typename internal::p4est::types<2>::quadrant *quadrant,
+    const typename internal::p4est::types<2>::quadrant_coord
       quad_length_on_level)
   {
+    constexpr int dim = 2;
+
     double corner_point[dim] = {0};
 
     // Fill points of QuadrantData in lexicographic order
+    /*
+     * Corner #0
+     */
+    unsigned int vertex_index = 0;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity, which_tree, quadrant->x, quadrant->y, corner_point);
 
-
-    if (dim == 2)
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
       {
-        /*
-         * Corner #0
-         */
-        unsigned int vertex_index = 0;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-
-        /*
-         * Corner #1
-         */
-        vertex_index = 1;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #2
-         */
-        vertex_index = 2;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #3
-         */
-        vertex_index = 3;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
       }
-    else
+
+
+    /*
+     * Corner #1
+     */
+    vertex_index = 1;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
       {
-        /*
-         * Corner #0
-         */
-        unsigned int vertex_index = 0;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y,
-          quadrant->z,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-
-        /*
-         * Corner #1
-         */
-        vertex_index = 1;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y,
-          quadrant->z,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #2
-         */
-        vertex_index = 2;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y + quad_length_on_level,
-          quadrant->z,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #3
-         */
-        vertex_index = 3;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y + quad_length_on_level,
-          quadrant->z,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #4
-         */
-        vertex_index = 4;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y,
-          quadrant->z + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #5
-         */
-        vertex_index = 5;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y,
-          quadrant->z + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #6
-         */
-        vertex_index = 6;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x,
-          quadrant->y + quad_length_on_level,
-          quadrant->z + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
-
-        /*
-         * Corner #7
-         */
-        vertex_index = 7;
-        internal::p4est::functions<dim>::quadrant_coord_to_vertex(
-          forest->connectivity,
-          which_tree,
-          quadrant->x + quad_length_on_level,
-          quadrant->y + quad_length_on_level,
-          quadrant->z + quad_length_on_level,
-          corner_point);
-
-        // copy into local struct
-        for (size_t d = 0; d < dim; ++d)
-          {
-            cell_vertices[vertex_index](d) = corner_point[d];
-            // reset
-            corner_point[d] = 0;
-          }
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
       }
+
+    /*
+     * Corner #2
+     */
+    vertex_index = 2;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x,
+      quadrant->y + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #3
+     */
+    vertex_index = 3;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+
+    is_initialized_vertices = true;
+  }
+
+
+
+  template <>
+  void
+  PartitionSearch<3>::QuadrantData::set_cell_vertices(
+    typename internal::p4est::types<3>::forest *  forest,
+    typename internal::p4est::types<3>::topidx    which_tree,
+    typename internal::p4est::types<3>::quadrant *quadrant,
+    const typename internal::p4est::types<3>::quadrant_coord
+      quad_length_on_level)
+  {
+    constexpr int dim = 3;
+
+    double corner_point[dim] = {0};
+
+    // Fill points of QuadrantData in lexicographic order
+    /*
+     * Corner #0
+     */
+    unsigned int vertex_index = 0;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x,
+      quadrant->y,
+      quadrant->z,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+
+    /*
+     * Corner #1
+     */
+    vertex_index = 1;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y,
+      quadrant->z,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #2
+     */
+    vertex_index = 2;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x,
+      quadrant->y + quad_length_on_level,
+      quadrant->z,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #3
+     */
+    vertex_index = 3;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y + quad_length_on_level,
+      quadrant->z,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #4
+     */
+    vertex_index = 4;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x,
+      quadrant->y,
+      quadrant->z + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #5
+     */
+    vertex_index = 5;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y,
+      quadrant->z + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #6
+     */
+    vertex_index = 6;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x,
+      quadrant->y + quad_length_on_level,
+      quadrant->z + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
+    /*
+     * Corner #7
+     */
+    vertex_index = 7;
+    internal::p4est::functions<dim>::quadrant_coord_to_vertex(
+      forest->connectivity,
+      which_tree,
+      quadrant->x + quad_length_on_level,
+      quadrant->y + quad_length_on_level,
+      quadrant->z + quad_length_on_level,
+      corner_point);
+
+    // copy into local struct
+    for (size_t d = 0; d < dim; ++d)
+      {
+        cell_vertices[vertex_index](d) = corner_point[d];
+        // reset
+        corner_point[d] = 0;
+      }
+
 
     is_initialized_vertices = true;
   }
@@ -2301,8 +2311,7 @@ namespace parallel
 #  ifndef DOXYGEN
 
     template <>
-    void
-    Triangulation<2, 2>::copy_new_triangulation_to_p4est(
+    void Triangulation<2, 2>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 2;
@@ -2368,8 +2377,7 @@ namespace parallel
     // TODO: This is a verbatim copy of the 2,2 case. However, we can't just
     // specialize the dim template argument, but let spacedim open
     template <>
-    void
-    Triangulation<2, 3>::copy_new_triangulation_to_p4est(
+    void Triangulation<2, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 3;
@@ -2433,8 +2441,7 @@ namespace parallel
 
 
     template <>
-    void
-    Triangulation<3, 3>::copy_new_triangulation_to_p4est(
+    void Triangulation<3, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 3>)
     {
       const int dim = 3, spacedim = 3;
@@ -2821,8 +2828,7 @@ namespace parallel
               "Infinite loop in "
               "parallel::distributed::Triangulation::prepare_coarsening_and_refinement() "
               "for periodic boundaries detected. Aborting."));
-        }
-      while (mesh_changed);
+      } while (mesh_changed);
 
       // check if any of the refinement flags were changed during this
       // function and return that value
@@ -2944,7 +2950,7 @@ namespace parallel
                   // comes out of this cell.
 
                   typename dealii::internal::p4est::types<dim>::quadrant
-                                                                      p4est_coarse_cell;
+                    p4est_coarse_cell;
                   typename dealii::internal::p4est::types<dim>::tree *tree =
                     init_tree(cell->index());
 
@@ -3016,8 +3022,7 @@ namespace parallel
               // distorted cells
               Assert(false, ExcInternalError());
             }
-        }
-      while (mesh_changed);
+      } while (mesh_changed);
 
 #  ifdef DEBUG
       // check if correct number of ghosts is created
@@ -3188,7 +3193,7 @@ namespace parallel
       const std::vector<Point<dim>> &points)
     {
       // Create object for callback
-      PartitionSearch<dim, spacedim> partition_search;
+      PartitionSearch<dim> partition_search;
 
       // Pointer should be this triangualtion before we set it to something else
       Assert(parallel_forest->user_pointer == this, ExcInternalError());
@@ -3232,8 +3237,8 @@ namespace parallel
         parallel_forest,
         /* execute quadrant function when leaving quadrant */
         static_cast<int>(false),
-        &PartitionSearch<dim, spacedim>::local_quadrant_fn,
-        &PartitionSearch<dim, spacedim>::local_point_fn,
+        &PartitionSearch<dim>::local_quadrant_fn,
+        &PartitionSearch<dim>::local_point_fn,
         point_sc_array);
 
       // copy the points found to an std::array
@@ -3823,7 +3828,7 @@ namespace parallel
               const unsigned int     second_dealii_idx_on_face =
                 lower_idx == 0 ? left_to_right[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face] :
-                                 right_to_left[face_pair.orientation.to_ulong()]
+                                     right_to_left[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face];
               const unsigned int second_dealii_idx_on_cell =
                 GeometryInfo<dim>::face_to_cell_vertices(
@@ -4085,9 +4090,8 @@ namespace parallel
 
               case parallel::distributed::Triangulation<dim,
                                                         spacedim>::CELL_REFINE:
-              case parallel::distributed::Triangulation<dim,
-                                                        spacedim>::CELL_INVALID:
-                {
+                case parallel::distributed::Triangulation<dim, spacedim>::
+                  CELL_INVALID: {
                   // calculate weight of parent cell
                   unsigned int parent_weight = 1000;
                   parent_weight += this->signals.cell_weight(
