@@ -50,10 +50,12 @@ test(const Point<dim> &point)
           << std::endl;
   const unsigned int checksum = triangulation.get_checksum();
   deallog << "   Triangulation checksum = " << checksum << std::endl;
+  deallog << "   point = " << point << std::endl;
 
   ////////////////////////////////////////////////////////////
   // test stuff
-
+  unsigned int point_owner_rank = triangulation.find_point_owner_rank(point);
+  deallog << "   rank of point owner = " << point_owner_rank << std::endl;
   ////////////////////////////////////////////////////////////
 
   deallog << "--- Reached end of test ---" << std::endl;
@@ -72,7 +74,7 @@ main(int argc, char *argv[])
    * hyper_L. We want to find the mpi rank of a single fixed point. On all
    * processes we must find the same owner.
    */
-  const Point<dim> point(0.25, 0.75);
+  const Point<2> point(0.25, 0.75);
 
 
   initlog();

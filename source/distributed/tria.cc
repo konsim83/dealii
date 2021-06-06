@@ -572,7 +572,8 @@ namespace
   class PartitionSearch
   {
   public:
-    PartitionSearch();
+    PartitionSearch()
+    {}
 
     PartitionSearch(const PartitionSearch<dim> &other) = delete;
 
@@ -679,12 +680,12 @@ namespace
     typename internal::p4est::types<dim>::forest *  forest,
     typename internal::p4est::types<dim>::topidx    which_tree,
     typename internal::p4est::types<dim>::quadrant *quadrant,
-    int                                             rank_begin,
-    int                                             rank_end,
-    void * /* this is always nullptr */             point)
+    int /* rank_begin */,
+    int /* rank_end */,
+    void * /* this is always nullptr */ point)
   {
     // point must be be nullptr here
-    Assert(point == nullptr, dealii::ExcInternalError());
+    AssertThrow(point == nullptr, dealii::ExcInternalError());
 
     // we need the user pointer
     PartitionSearch<dim> *this_object =
@@ -704,6 +705,9 @@ namespace
                                                  quadrant,
                                                  quad_length_on_level);
 
+    // from cell vertices we can initialize the mapping
+    this_object->quadrant_data.initialize_mapping();
+
     // always return true since we must decide by point
     return /* true */ 1;
   }
@@ -713,12 +717,12 @@ namespace
   template <int dim>
   int
   PartitionSearch<dim>::local_point_fn(
-    typename internal::p4est::types<dim>::forest *  forest,
-    typename internal::p4est::types<dim>::topidx    which_tree,
-    typename internal::p4est::types<dim>::quadrant *quadrant,
-    int                                             rank_begin,
-    int                                             rank_end,
-    void *                                          point)
+    typename internal::p4est::types<dim>::forest *forest,
+    typename internal::p4est::types<dim>::topidx /* which_tree */,
+    typename internal::p4est::types<dim>::quadrant * /* quadrant */,
+    int   rank_begin,
+    int   rank_end,
+    void *point)
   {
     // point must NOT be be nullptr here
     Assert(point != nullptr, dealii::ExcInternalError());
