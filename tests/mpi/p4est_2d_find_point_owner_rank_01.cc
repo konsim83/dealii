@@ -41,7 +41,7 @@ test(const Point<dim> &point)
 
   parallel::distributed::Triangulation<dim> triangulation(MPI_COMM_WORLD);
   GridGenerator::hyper_L(triangulation);
-  triangulation.refine_global(1);
+  triangulation.refine_global(3);
 
   deallog << "   Number of cells = " << triangulation.n_global_active_cells()
           << std::endl;
@@ -74,7 +74,7 @@ main(int argc, char *argv[])
    * hyper_L. We want to find the mpi rank of a single fixed point. On all
    * processes we must find the same owner.
    */
-  const Point<2> point(0.25, 0.75);
+  const Point<2> point(-0.5, 0.5);
 
 
   initlog();

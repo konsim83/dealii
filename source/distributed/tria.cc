@@ -173,14 +173,16 @@ namespace
             {
               switch (dim)
                 {
-                    case 2: {
+                  case 2:
+                    {
                       connectivity->tree_to_face
                         [index * GeometryInfo<dim>::faces_per_cell + f] =
                         cell->neighbor_of_neighbor(f);
                       break;
                     }
 
-                    case 3: {
+                  case 3:
+                    {
                       /*
                        * The values for tree_to_face are in 0..23 where ttf % 6
                        * gives the face number and ttf / 4 the face orientation
@@ -904,8 +906,7 @@ namespace
 
 
   template <>
-  void
-  PartitionSearch<2>::QuadrantData::set_cell_vertices(
+  void PartitionSearch<2>::QuadrantData::set_cell_vertices(
     typename internal::p4est::types<2>::forest *  forest,
     typename internal::p4est::types<2>::topidx    which_tree,
     typename internal::p4est::types<2>::quadrant *quadrant,
@@ -997,8 +998,7 @@ namespace
 
 
   template <>
-  void
-  PartitionSearch<3>::QuadrantData::set_cell_vertices(
+  void PartitionSearch<3>::QuadrantData::set_cell_vertices(
     typename internal::p4est::types<3>::forest *  forest,
     typename internal::p4est::types<3>::topidx    which_tree,
     typename internal::p4est::types<3>::quadrant *quadrant,
@@ -2315,7 +2315,8 @@ namespace parallel
 #  ifndef DOXYGEN
 
     template <>
-    void Triangulation<2, 2>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<2, 2>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 2;
@@ -2381,7 +2382,8 @@ namespace parallel
     // TODO: This is a verbatim copy of the 2,2 case. However, we can't just
     // specialize the dim template argument, but let spacedim open
     template <>
-    void Triangulation<2, 3>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<2, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 3;
@@ -2445,7 +2447,8 @@ namespace parallel
 
 
     template <>
-    void Triangulation<3, 3>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<3, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 3>)
     {
       const int dim = 3, spacedim = 3;
@@ -2832,7 +2835,8 @@ namespace parallel
               "Infinite loop in "
               "parallel::distributed::Triangulation::prepare_coarsening_and_refinement() "
               "for periodic boundaries detected. Aborting."));
-      } while (mesh_changed);
+        }
+      while (mesh_changed);
 
       // check if any of the refinement flags were changed during this
       // function and return that value
@@ -2954,7 +2958,7 @@ namespace parallel
                   // comes out of this cell.
 
                   typename dealii::internal::p4est::types<dim>::quadrant
-                    p4est_coarse_cell;
+                                                                      p4est_coarse_cell;
                   typename dealii::internal::p4est::types<dim>::tree *tree =
                     init_tree(cell->index());
 
@@ -3026,7 +3030,8 @@ namespace parallel
               // distorted cells
               Assert(false, ExcInternalError());
             }
-      } while (mesh_changed);
+        }
+      while (mesh_changed);
 
 #  ifdef DEBUG
       // check if correct number of ghosts is created
@@ -3261,6 +3266,9 @@ namespace parallel
       // reset the internal pointer to this triangulation
       parallel_forest->user_pointer = this;
 
+      // release the memory (otherwise p4est will complain)
+      sc_array_destroy(point_sc_array);
+      ;
       return owner_rank;
     }
 
@@ -3832,7 +3840,7 @@ namespace parallel
               const unsigned int     second_dealii_idx_on_face =
                 lower_idx == 0 ? left_to_right[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face] :
-                                     right_to_left[face_pair.orientation.to_ulong()]
+                                 right_to_left[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face];
               const unsigned int second_dealii_idx_on_cell =
                 GeometryInfo<dim>::face_to_cell_vertices(
@@ -4094,8 +4102,9 @@ namespace parallel
 
               case parallel::distributed::Triangulation<dim,
                                                         spacedim>::CELL_REFINE:
-                case parallel::distributed::Triangulation<dim, spacedim>::
-                  CELL_INVALID: {
+              case parallel::distributed::Triangulation<dim,
+                                                        spacedim>::CELL_INVALID:
+                {
                   // calculate weight of parent cell
                   unsigned int parent_weight = 1000;
                   parent_weight += this->signals.cell_weight(
