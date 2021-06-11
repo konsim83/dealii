@@ -34,9 +34,9 @@ main(int argc, char *argv[])
    * hyper_L. We want to find the mpi rank of a single fixed point. On all
    * processes we must find the same owner.
    */
-  const Point<2> point(0.23, 0.77);
+  const Point<3> point(0.23, 0.77, 0.77);
 
-  deallog.push("2D-Test");
-  test<2>(point);
+  deallog.push("3D-Test");
+  test<3>(point);
   deallog.pop();
 }

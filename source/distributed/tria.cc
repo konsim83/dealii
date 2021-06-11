@@ -3268,7 +3268,7 @@ namespace parallel
 
       // release the memory (otherwise p4est will complain)
       sc_array_destroy(point_sc_array);
-      ;
+
       return owner_rank;
     }
 

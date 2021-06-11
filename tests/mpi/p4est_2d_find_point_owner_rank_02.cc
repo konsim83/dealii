@@ -22,6 +22,7 @@
 // contains the actual templated tests
 #include "p4est_find_point_owner_rank.h"
 
+
 int
 main(int argc, char *argv[])
 {
@@ -31,12 +32,19 @@ main(int argc, char *argv[])
 
   /*
    * We craete a distrubuted mesh with three cells (tree roots), e.g., a
-   * hyper_L. We want to find the mpi rank of a single fixed point. On all
-   * processes we must find the same owner.
+   * hyper_L. We want to find the mpi rank of a set of fixed points. On all
+   * processes we must find the same owner ranks.
    */
-  const Point<2> point(0.23, 0.77);
+  std::vector<Point<2>> points;
+  points.emplace_back(Point<2>(0.23, 0.23));
+  points.emplace_back(Point<2>(0.23, 0.77));
+  points.emplace_back(Point<2>(0.77, 0.23));
+  points.emplace_back(Point<2>(0.77, 0.77));
+
+  // this point is outside the mesh
+  points.emplace_back(Point<2>(1.1, 1.1));
 
   deallog.push("2D-Test");
-  test<2>(point);
+  test<2>(points);
   deallog.pop();
 }
