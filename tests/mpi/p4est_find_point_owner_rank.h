@@ -65,7 +65,7 @@ test(const Point<dim> &point)
  */
 template <int dim>
 void
-test(const std::vector<Point<2>> &points)
+test(const std::vector<Point<dim>> &points)
 {
   deallog << " Point search on subdivided hyper cube..." << std::endl;
 

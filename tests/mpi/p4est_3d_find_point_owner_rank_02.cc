@@ -35,7 +35,7 @@ main(int argc, char *argv[])
    * hyper_L. We want to find the mpi rank of a set of fixed points. On all
    * processes we must find the same owner ranks.
    */
-  std::vector<Point<2>> points;
+  std::vector<Point<3>> points;
   points.emplace_back(Point<3>(0.23, 0.23, 0.23));
   points.emplace_back(Point<3>(0.23, 0.77, 0.23));
   points.emplace_back(Point<3>(0.77, 0.23, 0.23));
