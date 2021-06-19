@@ -173,14 +173,16 @@ namespace
             {
               switch (dim)
                 {
-                    case 2: {
+                  case 2:
+                    {
                       connectivity->tree_to_face
                         [index * GeometryInfo<dim>::faces_per_cell + f] =
                         cell->neighbor_of_neighbor(f);
                       break;
                     }
 
-                    case 3: {
+                  case 3:
+                    {
                       /*
                        * The values for tree_to_face are in 0..23 where ttf % 6
                        * gives the face number and ttf / 4 the face orientation
@@ -687,9 +689,12 @@ namespace
     // point must be be nullptr here
     AssertThrow(point == nullptr, dealii::ExcInternalError());
 
+    std::cout << "quadrant enter..." << std::endl;
     // we need the user pointer
     PartitionSearch<dim> *this_object =
       reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
+
+    std::cout << "quadrant after cast..." << std::endl;
 
     // Avoid p4est macros, instead do bitshifts manually with fixed size types
     const typename internal::p4est::types<dim>::quadrant_coord
@@ -699,15 +704,19 @@ namespace
               static_cast<typename internal::p4est::types<dim>::quadrant_coord>(
                 quadrant->level));
 
+    std::cout << "quadrant after quad length on level..." << std::endl;
+
 
     this_object->quadrant_data.set_cell_vertices(forest,
                                                  which_tree,
                                                  quadrant,
                                                  quad_length_on_level);
 
+    std::cout << "quadrant after set cell vertices..." << std::endl;
+
     // from cell vertices we can initialize the mapping
     this_object->quadrant_data.initialize_mapping();
-
+    std::cout << "quadrant done..." << std::endl;
     // always return true since we must decide by point
     return /* true */ 1;
   }
@@ -726,7 +735,7 @@ namespace
   {
     // point must NOT be be nullptr here
     Assert(point != nullptr, dealii::ExcInternalError());
-
+    std::cout << "point function begin" << std::endl;
     // we need the user pointer
     PartitionSearch<dim> *this_object =
       reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
@@ -744,19 +753,29 @@ namespace
     const bool is_in_this_quadrant =
       this_object->quadrant_data.is_in_this_quadrant(this_point);
 
+
+
     if (!is_in_this_quadrant)
-      // no need to search further, stop recursion
-      return /* false */ 0;
+      {
+        std::cout << "point not in quadrant" << std::endl;
+        // no need to search further, stop recursion
+        return /* false */ 0;
+      }
+
+
 
     // From here we have a candidate
     if (rank_begin < rank_end)
-      // continue recursion
-      return /* true */ 1;
+      {
+        std::cout << "point in quadrant but need to continue" << std::endl;
+        // continue recursion
+        return /* true */ 1;
+      }
 
     // No we know that the point is found (rank_begin==rank_end) and we have the
     // MPI rank, so no need to search further.
     this_point_dptr[dim] = static_cast<double>(rank_begin);
-
+    std::cout << "point in quadrant and rank is found " << std::endl;
     // stop recursion.
     return /* false */ 0;
   }
@@ -904,8 +923,7 @@ namespace
 
 
   template <>
-  void
-  PartitionSearch<2>::QuadrantData::set_cell_vertices(
+  void PartitionSearch<2>::QuadrantData::set_cell_vertices(
     typename internal::p4est::types<2>::forest *  forest,
     typename internal::p4est::types<2>::topidx    which_tree,
     typename internal::p4est::types<2>::quadrant *quadrant,
@@ -914,8 +932,10 @@ namespace
   {
     constexpr int dim = 2;
 
-    double corner_point[dim] = {0};
-
+    // p4est for some reason always needs double vxyz[3] as last argument to
+    // quadrant_coord_to_vertex
+    double corner_point[dim + 1] = {0};
+    std::cout << "set cell vert before quad coord to vert" << std::endl;
     // Fill points of QuadrantData in lexicographic order
     /*
      * Corner #0
@@ -923,7 +943,7 @@ namespace
     unsigned int vertex_index = 0;
     internal::p4est::functions<dim>::quadrant_coord_to_vertex(
       forest->connectivity, which_tree, quadrant->x, quadrant->y, corner_point);
-
+    std::cout << "set cell vert after quad coord to vert" << std::endl;
     // copy into local struct
     for (size_t d = 0; d < dim; ++d)
       {
@@ -931,6 +951,8 @@ namespace
         // reset
         corner_point[d] = 0;
       }
+
+    std::cout << "set cell vert after quad coord to vert assign" << std::endl;
 
 
     /*
@@ -990,15 +1012,14 @@ namespace
         corner_point[d] = 0;
       }
 
-
+    std::cout << "set cell vert at end..." << std::endl;
     is_initialized_vertices = true;
   }
 
 
 
   template <>
-  void
-  PartitionSearch<3>::QuadrantData::set_cell_vertices(
+  void PartitionSearch<3>::QuadrantData::set_cell_vertices(
     typename internal::p4est::types<3>::forest *  forest,
     typename internal::p4est::types<3>::topidx    which_tree,
     typename internal::p4est::types<3>::quadrant *quadrant,
@@ -2315,7 +2336,8 @@ namespace parallel
 #  ifndef DOXYGEN
 
     template <>
-    void Triangulation<2, 2>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<2, 2>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 2;
@@ -2381,7 +2403,8 @@ namespace parallel
     // TODO: This is a verbatim copy of the 2,2 case. However, we can't just
     // specialize the dim template argument, but let spacedim open
     template <>
-    void Triangulation<2, 3>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<2, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 2>)
     {
       const unsigned int dim = 2, spacedim = 3;
@@ -2445,7 +2468,8 @@ namespace parallel
 
 
     template <>
-    void Triangulation<3, 3>::copy_new_triangulation_to_p4est(
+    void
+    Triangulation<3, 3>::copy_new_triangulation_to_p4est(
       std::integral_constant<int, 3>)
     {
       const int dim = 3, spacedim = 3;
@@ -2832,7 +2856,8 @@ namespace parallel
               "Infinite loop in "
               "parallel::distributed::Triangulation::prepare_coarsening_and_refinement() "
               "for periodic boundaries detected. Aborting."));
-      } while (mesh_changed);
+        }
+      while (mesh_changed);
 
       // check if any of the refinement flags were changed during this
       // function and return that value
@@ -2954,7 +2979,7 @@ namespace parallel
                   // comes out of this cell.
 
                   typename dealii::internal::p4est::types<dim>::quadrant
-                    p4est_coarse_cell;
+                                                                      p4est_coarse_cell;
                   typename dealii::internal::p4est::types<dim>::tree *tree =
                     init_tree(cell->index());
 
@@ -3026,7 +3051,8 @@ namespace parallel
               // distorted cells
               Assert(false, ExcInternalError());
             }
-      } while (mesh_changed);
+        }
+      while (mesh_changed);
 
 #  ifdef DEBUG
       // check if correct number of ghosts is created
@@ -3236,7 +3262,7 @@ namespace parallel
           this_sc_point[dim] = -1.0; // owner rank
         }
       /*********************************************/
-
+      std::cout << "1" << std::endl;
       dealii::internal::p4est::functions<dim>::search_partition(
         parallel_forest,
         /* execute quadrant function when leaving quadrant */
@@ -3263,6 +3289,8 @@ namespace parallel
 
       // release the memory (otherwise p4est will complain)
       sc_array_destroy_null(&point_sc_array);
+
+      std::cout << "1" << std::endl;
 
       return owner_rank;
     }
@@ -3835,7 +3863,7 @@ namespace parallel
               const unsigned int     second_dealii_idx_on_face =
                 lower_idx == 0 ? left_to_right[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face] :
-                                     right_to_left[face_pair.orientation.to_ulong()]
+                                 right_to_left[face_pair.orientation.to_ulong()]
                                               [first_dealii_idx_on_face];
               const unsigned int second_dealii_idx_on_cell =
                 GeometryInfo<dim>::face_to_cell_vertices(
@@ -4097,8 +4125,9 @@ namespace parallel
 
               case parallel::distributed::Triangulation<dim,
                                                         spacedim>::CELL_REFINE:
-                case parallel::distributed::Triangulation<dim, spacedim>::
-                  CELL_INVALID: {
+              case parallel::distributed::Triangulation<dim,
+                                                        spacedim>::CELL_INVALID:
+                {
                   // calculate weight of parent cell
                   unsigned int parent_weight = 1000;
                   parent_weight += this->signals.cell_weight(
