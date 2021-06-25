@@ -689,12 +689,9 @@ namespace
     // point must be be nullptr here
     AssertThrow(point == nullptr, dealii::ExcInternalError());
 
-    std::cout << "quadrant enter..." << std::endl;
     // we need the user pointer
     PartitionSearch<dim> *this_object =
       reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
-
-    std::cout << "quadrant after cast..." << std::endl;
 
     // Avoid p4est macros, instead do bitshifts manually with fixed size types
     const typename internal::p4est::types<dim>::quadrant_coord
@@ -704,19 +701,14 @@ namespace
               static_cast<typename internal::p4est::types<dim>::quadrant_coord>(
                 quadrant->level));
 
-    std::cout << "quadrant after quad length on level..." << std::endl;
-
-
     this_object->quadrant_data.set_cell_vertices(forest,
                                                  which_tree,
                                                  quadrant,
                                                  quad_length_on_level);
 
-    std::cout << "quadrant after set cell vertices..." << std::endl;
-
     // from cell vertices we can initialize the mapping
     this_object->quadrant_data.initialize_mapping();
-    std::cout << "quadrant done..." << std::endl;
+
     // always return true since we must decide by point
     return /* true */ 1;
   }
@@ -735,7 +727,7 @@ namespace
   {
     // point must NOT be be nullptr here
     Assert(point != nullptr, dealii::ExcInternalError());
-    std::cout << "point function begin" << std::endl;
+
     // we need the user pointer
     PartitionSearch<dim> *this_object =
       reinterpret_cast<PartitionSearch<dim> *>(forest->user_pointer);
@@ -757,7 +749,6 @@ namespace
 
     if (!is_in_this_quadrant)
       {
-        std::cout << "point not in quadrant" << std::endl;
         // no need to search further, stop recursion
         return /* false */ 0;
       }
@@ -767,7 +758,6 @@ namespace
     // From here we have a candidate
     if (rank_begin < rank_end)
       {
-        std::cout << "point in quadrant but need to continue" << std::endl;
         // continue recursion
         return /* true */ 1;
       }
@@ -775,7 +765,7 @@ namespace
     // No we know that the point is found (rank_begin==rank_end) and we have the
     // MPI rank, so no need to search further.
     this_point_dptr[dim] = static_cast<double>(rank_begin);
-    std::cout << "point in quadrant and rank is found " << std::endl;
+
     // stop recursion.
     return /* false */ 0;
   }
@@ -935,7 +925,7 @@ namespace
     // p4est for some reason always needs double vxyz[3] as last argument to
     // quadrant_coord_to_vertex
     double corner_point[dim + 1] = {0};
-    std::cout << "set cell vert before quad coord to vert" << std::endl;
+
     // Fill points of QuadrantData in lexicographic order
     /*
      * Corner #0
@@ -943,7 +933,7 @@ namespace
     unsigned int vertex_index = 0;
     internal::p4est::functions<dim>::quadrant_coord_to_vertex(
       forest->connectivity, which_tree, quadrant->x, quadrant->y, corner_point);
-    std::cout << "set cell vert after quad coord to vert" << std::endl;
+
     // copy into local struct
     for (size_t d = 0; d < dim; ++d)
       {
@@ -951,9 +941,6 @@ namespace
         // reset
         corner_point[d] = 0;
       }
-
-    std::cout << "set cell vert after quad coord to vert assign" << std::endl;
-
 
     /*
      * Corner #1
@@ -1012,7 +999,6 @@ namespace
         corner_point[d] = 0;
       }
 
-    std::cout << "set cell vert at end..." << std::endl;
     is_initialized_vertices = true;
   }
 
@@ -2366,7 +2352,7 @@ namespace parallel
 #    ifdef DEBUG
         = true
 #    else
-        = false
+        = true
 #    endif
         ;
 
@@ -2433,7 +2419,7 @@ namespace parallel
 #    ifdef DEBUG
         = true
 #    else
-        = false
+        = true
 #    endif
         ;
 
@@ -2503,7 +2489,7 @@ namespace parallel
 #    ifdef DEBUG
         = true
 #    else
-        = false
+        = true
 #    endif
         ;
 
@@ -3262,7 +3248,7 @@ namespace parallel
           this_sc_point[dim] = -1.0; // owner rank
         }
       /*********************************************/
-      std::cout << "1" << std::endl;
+
       dealii::internal::p4est::functions<dim>::search_partition(
         parallel_forest,
         /* execute quadrant function when leaving quadrant */
@@ -3289,8 +3275,6 @@ namespace parallel
 
       // release the memory (otherwise p4est will complain)
       sc_array_destroy_null(&point_sc_array);
-
-      std::cout << "1" << std::endl;
 
       return owner_rank;
     }
